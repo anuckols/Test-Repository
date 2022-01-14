@@ -1,0 +1,2301 @@
+openapi: 3.0.1
+info:
+  title: Workflow History REST API
+  description: Workflow-history service provides historic details of processes, tasks
+    or activities which are linked to the workflow service.
+  version: v1
+servers:
+- url: /workflow-history/v1
+tags:
+- name: Audit Log
+- name: Historic Process Instances
+- name: Historic Tasks
+- name: Version
+paths:
+  /activity-instances/audit-logs:
+    get:
+      tags:
+      - Audit Log
+      summary: List process activity instances audit log
+      description: List process activity instances audit logs
+      operationId: listProcessActivityInstancesAuditLog
+      parameters:
+      - name: eventType
+        in: query
+        description: An event type id registered for specific process activity events
+        schema:
+          type: string
+          enum:
+          - process-activity-start
+          - process-activity-end
+      - name: activityId
+        in: query
+        description: An id of the process activity instance.
+        schema:
+          type: string
+      - name: activityType
+        in: query
+        description: The type of the process activity instance..
+        schema:
+          type: string
+      - name: executionId
+        in: query
+        description: The execution id of the process activity instance.
+        schema:
+          type: string
+      - name: processInstanceId
+        in: query
+        description: The process instance id of the activity instance.
+        schema:
+          type: string
+      - name: processDefinitionId
+        in: query
+        description: The process definition id of the activity instance.
+        schema:
+          type: string
+      - name: userId
+        in: query
+        description: The otds Uuid of the user.
+        schema:
+          type: string
+      - name: filterByCurrentSubscription
+        in: query
+        description: Only return the process activity instances event logs in the
+          current subscription
+        schema:
+          type: boolean
+      - name: offset
+        in: query
+        description: Start position value in the list of items, used for pagination.
+        schema:
+          type: string
+      - name: count
+        in: query
+        description: Number of items to be limited in the response, used for pagination.
+          By default the count value is set to 10.
+        schema:
+          type: string
+      - name: Before
+        in: query
+        description: Only return process activity instances started before the given
+          date.
+        schema:
+          type: string
+          format: date-time
+      - name: After
+        in: query
+        description: Only return process activity instances started after the given
+          date.
+        schema:
+          type: string
+          format: date-time
+      responses:
+        200:
+          description: Indicates that process activity instances audit log could be
+            queried.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CollectionModelAuditProcessActivityInstanceResponse'
+        400:
+          description: Indicates an parameter was passed in the wrong format. The
+            status-message contains additional information.
+          content: {}
+  /historic-activity-instances:
+    get:
+      tags:
+      - Historic Process Instances
+      summary: List historic activity instances
+      description: List historic activity instances.
+      operationId: listHistoricActivityInstances
+      parameters:
+      - name: activityId
+        in: query
+        description: An id of the activity instance.
+        schema:
+          type: string
+      - name: activityInstanceId
+        in: query
+        description: An id of the historic activity instance.
+        schema:
+          type: string
+      - name: activityName
+        in: query
+        description: The name of the historic activity instance.
+        schema:
+          type: string
+      - name: activityType
+        in: query
+        description: The element type of the historic activity instance.
+        schema:
+          type: string
+      - name: executionId
+        in: query
+        description: The execution id of the historic activity instance.
+        schema:
+          type: string
+      - name: finished
+        in: query
+        description: Indication if the historic activity instance is finished.
+        schema:
+          type: boolean
+      - name: taskAssignee
+        in: query
+        description: The assignee of the historic activity instance.
+        schema:
+          type: string
+      - name: processInstanceId
+        in: query
+        description: The process instance id of the historic activity instance.
+        schema:
+          type: string
+      - name: processDefinitionId
+        in: query
+        description: The process definition id of the historic activity instance.
+        schema:
+          type: string
+      - name: filterByCurrentSubscription
+        in: query
+        description: Only return the activity instances in the current subscription
+        schema:
+          type: boolean
+      - name: includeUserIds
+        in: query
+        description: Indication to include OTDS Id instead of email for users in the
+          response.
+        schema:
+          type: boolean
+          default: false
+      responses:
+        200:
+          description: Indicates that historic activity instances could be queried.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CollectionModelListEntityModelWorkflowHistoricActivityInstanceResponse'
+        400:
+          description: Indicates an parameter was passed in the wrong format. The
+            status-message contains additional information.
+          content: {}
+      security:
+      - oAuth: []
+      x-opentext-eim-service-events:
+        task-created: '{"$schema": "http://json-schema.org/draft-04/schema#", "$id":
+          "http://workflow.opentext.com/schema/task-created", "title": "Task created",
+          "description": "A task is created", "type": "object", "properties": {"id":
+          {"description": "The unique identifier of a task", "type": "string"}, "name":
+          {"description": "The name of a task", "type": "string"}, "parentTaskId":
+          {"description": "The unique identifier of a parent task", "type": "string"},
+          "description": {"description": "The description of a task", "type": "string"},
+          "owner": {"description": "Owner of a task", "type": "string"}, "assignee":
+          {"description": "Assignee of a task", "type": "string"}, "createTime": {"description":
+          "The time when task is created", "type": "string"}, "taskDefinitionKey":
+          {"description": "The id of the activity in the process defining this task
+          or null if this is not related to a process", "type": "string"}, "taskDefinitionId":
+          {"description": "Reference to the task definition or null if it is not related
+          to any task definition", "type": "string"}, "formKey": {"description": "The
+          form key for a user task", "type": "string"}, "priority": {"description":
+          "Indication of how important/urgent this task is with a number between 0
+          and 100 where higher values mean a higher priority and lower values mean
+          lower priority: [0..19] lowest, [20..39] low, [40..59] normal, [60..79]
+          high [80..100] highest", "type": "integer"}, "dueDate": {"description":
+          "Due date of the task", "type": "string"}, "category": {"description": "The
+          category of a task", "type": "string"}, "claimTime": {"description": "The
+          claim time of this task", "type": "string"}, "tenantId": {"description":
+          "The unique identifier of a tenant for this task", "type": "string"}, "processInstanceId":
+          {"description": "The unique identifier of a process instance", "type": "string"},
+          "executionId": {"description": "The unique identifier of an execution",
+          "type": "string"}, "processDefinitionId": {"description": "The unique identifier
+          of a process definition", "type": "string"}, "processDefinitionKey": {"description":
+          "Unique name for all versions of the process definition", "type": "string"},
+          "processDefinitionName": {"description": "The name of a process definition",
+          "type": "string"}, "processDefinitionVersion": {"description": "The version
+          of a process definition", "type": "integer"}, "processDefinitionCategory":
+          {"description": "The category of a process definition", "type": "string"},
+          "deploymentId": {"description":"The unique identifier of a deployment",
+          "type": "string"}, "processDefinitionDerivedFrom": {"description": "The
+          derived from process definition value when this is a dynamic process definition",
+          "type": "string"}, "processDefinitionDerivedFromRoot": {"description": "The
+          root derived from process definition value when this is a dynamic process
+          definition", "type": "string"}, "processDefinitionDerivedVersion": {"description":
+          "The derived version of a process definition", "type": "integer"}, "__timeStamp":
+          {"description": "The time when task is created", "type": "string"}}}'
+        process-instance-deleted-by-process-definition-id: '{"$schema": "http://json-schema.org/draft-04/schema#",
+          "$id": "http://workflow.opentext.com/schema/process-instance-deleted-by-process-definition-id",
+          "title": "Process instance/s are deleted by process definition Id", "description":
+          "Process instance/s are deleted by process definition Id", "type": "object",
+          "properties": {"processDefinitionId": {"description": "The unique identifier
+          of a process definition", "type": "string"}, "__timeStamp": {"description":
+          "The time when process instances are deleted", "type": "string"}}}'
+        variable-created: '{"$schema": "http://json-schema.org/draft-04/schema#",
+          "$id": "http://workflow.opentext.com/schema/variable-created", "title":
+          "Create Process Variable", "description": "A variable is created", "type":
+          "object", "properties": {"id": {"description": "The unique identifier of
+          a variable", "type": "string"}, "processInstanceId": {"description": "The
+          unique identifier of a process instance", "type": "string"}, "executionId":
+          {"description": "The unique identifier of an execution", "type": "string"},
+          "taskId": {"description": "The unique identifier of a task", "type": "string"},
+          "name": {"description": "Name of a variable", "type": "string"}, "scopeId":
+          {"description": "The scope Id of a variable", "type": "string"}, "subScopeId":
+          {"description": "The sub scope Id of a variable", "type": "string"}, "scopeType":
+          {"description": "The scope type of a variable", "type": "string"}, "variableType":
+          {"description": "Type of a variable", "type": "string"}, "variableTextValue":
+          {"description": "The first test value of a variable", "type": "string"},
+          "variableTextValue2": {"description": "The second text value of a variable",
+          "type": "string"}, "variableDoubleValue": {"description": "The double value
+          of a variable", "type": "number"}, "variableLongValue": {"description":
+          "The long value of a variable", "type": "number"}, "variableBytesValue":
+          {"description": "The byte value of a variable", "type": "string"}, "processDefinitionId":
+          {"description": "The unique identifier of a process definition", "type":
+          "string"}, "processDefinitionKey": {"description": "Unique name for all
+          versions of the process definition", "type": "string"}, "processDefinitionName":
+          {"description": "The name of a process definition", "type": "string"}, "processDefinitionVersion":
+          {"description": "The version of a process definition", "type": "integer"},
+          "processDefinitionCategory": {"description": "The category of a process
+          definition", "type": "string"}, "deploymentId": {"description":"The unique
+          identifier of a deployment", "type": "string"}, "processDefinitionDerivedFrom":
+          {"description": "The derived from process definition value when this is
+          a dynamic process definition", "type": "string"}, "processDefinitionDerivedFromRoot":
+          {"description": "The root derived from process definition value when this
+          is a dynamic process definition", "type": "string"}, "processDefinitionDerivedVersion":
+          {"description": "The derived version of a process definition", "type": "integer"},
+          "createTime": {"description": "The time when variable is created", "type":
+          "string"}, "__timeStamp": {"description": "The time when owner of the task
+          is changed", "type": "string"}}}'
+        activity-update: '{"$schema": "http://json-schema.org/draft-04/schema#", "$id":
+          "http://workflow.opentext.com/schema/activity-update", "title": "Activity
+          update", "description": "Activity update", "type": "object", "properties":
+          {"runtimeActivityInstanceId": {"description": "The unique identifier of
+          a runtime activity instance", "type": "string"}, "taskId": {"description":
+          "The unique identifier of a task", "type": "string"}, "assignee": {"description":
+          "Assignee of the task", "type": "string"}, "calledProcessInstanceId": {"description":
+          "The called process instance Id in case of call activity", "type": "string"},
+          "__timeStamp": {"description": "The time when activity is updated", "type":
+          "string"}}}'
+        task-ended: '{"$schema": "http://json-schema.org/draft-04/schema#", "$id":
+          "http://workflow.opentext.com/schema/task-ended", "title": "Task ended",
+          "description": "A task is ended", "type": "object", "properties": {"id":
+          {"description": "The unique identifier of a task", "type": "string"}, "name":
+          {"description": "The name of a task", "type": "string"}, "parentTaskId":
+          {"description": "The unique identifier of a parent task", "type": "string"},
+          "description": {"description": "The description of a task", "type": "string"},
+          "owner": {"description": "Owner of a task", "type": "string"}, "assignee":
+          {"description": "Assignee of a task", "type": "string"}, "createTime": {"description":
+          "The time when task is created", "type": "string"}, "taskDefinitionKey":
+          {"description": "The id of the activity in the process defining this task
+          or null if this is not related to a process", "type": "string"}, "taskDefinitionId":
+          {"description": "Reference to the task definition or null if it is not related
+          to any task definition", "type": "string"}, "formKey": {"description": "The
+          form key for a user task", "type": "string"}, "priority": {"description":
+          "Indication of how important/urgent this task is with a number between 0
+          and 100 where higher values mean a higher priority and lower values mean
+          lower priority: [0..19] lowest, [20..39] low, [40..59] normal, [60..79]
+          high [80..100] highest", "type": "integer"}, "dueDate": {"description":
+          "Due date of the task", "type": "string"}, "category": {"description": "The
+          category of a task", "type": "string"}, "claimTime": {"description": "The
+          claim time of this task", "type": "string"}, "tenantId": {"description":
+          "The unique identifier of a tenant for this task", "type": "string"}, "processInstanceId":
+          {"description": "The unique identifier of a process instance", "type": "string"},
+          "executionId": {"description": "The unique identifier of an execution",
+          "type": "string"}, "processDefinitionId": {"description": "The unique identifier
+          of a process definition", "type": "string"}, "processDefinitionKey": {"description":
+          "Unique name for all versions of the process definition", "type": "string"},
+          "processDefinitionName": {"description": "The name of a process definition",
+          "type": "string"}, "processDefinitionVersion": {"description": "The version
+          of a process definition", "type": "integer"}, "processDefinitionCategory":
+          {"description": "The category of a process definition", "type": "string"},
+          "deploymentId": {"description":"The unique identifier of a deployment",
+          "type": "string"}, "processDefinitionDerivedFrom": {"description": "The
+          derived from process definition value when this is a dynamic process definition",
+          "type": "string"}, "processDefinitionDerivedFromRoot": {"description": "The
+          root derived from process definition value when this is a dynamic process
+          definition", "type": "string"}, "processDefinitionDerivedVersion": {"description":
+          "The derived version of a process definition", "type": "integer"}, "deleteReason":
+          {"description": "The delete reason", "type": "string"}, "endTime": {"description":
+          "End time of a task", "type": "string"}, "__timeStamp": {"description":
+          "The time when task is ended", "type": "string"}}}'
+        set-process-definition: '{"$schema": "http://json-schema.org/draft-04/schema#",
+          "$id": "http://workflow.opentext.com/schema/set-process-definition", "title":
+          "Set Process definition", "description": "Set process definition", "type":
+          "object", "properties": {"processInstanceId": {"description": "The unique
+          identifier of a process instance", "type": "string"}, "processDefinitionId":
+          {"description": "The unique identifier of a process definition", "type":
+          "string"}, "__timeStamp": {"description": "The time when process definition
+          is set", "type": "string"}}}'
+        process-instance-start: '{"$schema": "http://json-schema.org/draft-04/schema#",
+          "$id": "http://workflow.opentext.com/schema/process-instance-start", "title":
+          "A process instance is started", "description": "A process instance is started",
+          "type": "object", "properties": {"id": {"description": "The unique identifier
+          of a process instance", "type": "string"}, "processInstanceId": {"description":
+          "The unique identifier of a process instance", "type": "string"}, "name":
+          {"description": "Name of a process instance", "type": "string"}, "businessKey":
+          {"description": "Business key of the process instance - subscription Id",
+          "type": "string"}, "deploymentId": {"description":"The unique identifier
+          of a deployment", "type": "string"}, "startTime": {"description": "The start
+          time of a process instance", "type": "string"}, "startUserId": {"description":
+          "The unique identifier of a user of the process instance", "type": "string"},
+          "startActivityId": {"description": "The unique identifier of a start activity",
+          "type": "string"}, "superProcessInstanceId": {"description": "The unique
+          identifier of a super process instance", "type": "string"}, "callbackId":
+          {"description": "The callback id of the process instance", "type": "string"},
+          "callbackType": {"description": "The callback type of process instance",
+          "type": "string"}, "referenceId": {"description": "The id of the optionally
+          referenced case instance, if this execution created a case", "type": "string"},
+          "referenceType": {"description": "The type of the optionally referenced
+          case instance, if this execution created a case", "type": "string"}, "tenantId":
+          {"description": "Tenant Id","type": "string"}, "processDefinitionId": {"description":
+          "The unique identifier of a process definition", "type": "string"}, "processDefinitionKey":
+          {"description": "Unique name for all versions of the process definition",
+          "type": "string"}, "processDefinitionName": {"description": "The name of
+          a process definition", "type": "string"}, "processDefinitionVersion": {"description":
+          "The version of a process definition", "type": "integer"}, "processDefinitionCategory":
+          {"description": "The category of a process definition", "type": "string"},
+          "processDefinitionDerivedFrom": {"description": "The derived from process
+          definition value when this is a dynamic process definition", "type": "string"},
+          "processDefinitionDerivedFromRoot": {"description": "The root derived from
+          process definition value when this is a dynamic process definition", "type":
+          "string"}, "processDefinitionDerivedVersion": {"description": "The derived
+          version of a process definition", "type": "integer"}, "__timeStamp": {"description":
+          "The time when process instance is started", "type": "string"}}}'
+        identitylink-created: '{"$schema": "http://json-schema.org/draft-04/schema#",
+          "$id": "http://workflow.opentext.com/schema/identitylink-created", "title":
+          "An identity link is created", "description": "An identity link is created",
+          "type": "object", "properties": {"id": {"description": "The unique identifier
+          of an identity link", "type": "string"}, "groupId": {"description": "The
+          unique identifier of a group", "type": "string"}, "processInstanceId": {"description":
+          "The unique identifier of a process instance", "type": "string"}, "processDefinitionId":
+          {"description": "The unique identifier of a process definition", "type":
+          "string"}, "taskId": {"description": "The unique identifier of a task",
+          "type": "string"}, "scopeDefinitionId": {"description": "The scope definition
+          ID of identity link", "type": "string"}, "scopeId": {"description": "The
+          unique identifier of a scope", "type": "string"}, "subScopeId": {"description":
+          "The unique identifier of a sub scope", "type": "string"}, "scopeType":
+          {"description": "The scope type of the identity link", "type": "string"},
+          "identityLinkType": {"description": "The type of an identity link", "type":
+          "string"}, "userId": {"description": "The unique identifier of a user",
+          "type": "string"}, "__timeStamp": {"description": "The time when identity
+          link is created", "type": "string"}}}'
+        process-instance-end: '{"$schema": "http://json-schema.org/draft-04/schema#",
+          "$id": "http://workflow.opentext.com/schema/process-instance-end", "title":
+          "A process instance is ended", "description": "A process instance is ended",
+          "type": "object", "properties": {"id": {"description": "The unique identifier
+          of a process instance", "type": "string"}, "processInstanceId": {"description":
+          "The unique identifier of a process instance", "type": "string"}, "name":
+          {"description": "Name of a process instance", "type": "string"}, "businessKey":
+          {"description": "Business key of the process instance - subscription Id",
+          "type": "string"}, "deploymentId": {"description":"The unique identifier
+          of a deployment", "type": "string"}, "startTime": {"description": "The start
+          time of a process instance", "type": "string"}, "startUserId": {"description":
+          "The unique identifier of a user started the process instance", "type":
+          "string"}, "startActivityId": {"description": "The unique identifier of
+          a start activity", "type": "string"}, "superProcessInstanceId": {"description":
+          "The unique identifier of a super process instance", "type": "string"},
+          "callbackId": {"description": "The callback id of the process instance",
+          "type": "string"}, "callbackType": {"description": "The callback type of
+          process instance", "type": "string"}, "referenceId": {"description": "The
+          id of the optionally referenced case instance, if this execution created
+          a case", "type": "string"}, "referenceType": {"description": "The type of
+          the optionally referenced case instance, if this execution created a case",
+          "type": "string"}, "tenantId": {"description": "Tenant Id","type": "string"},
+          "processDefinitionId": {"description": "The unique identifier of a process
+          definition", "type": "string"}, "processDefinitionKey": {"description":
+          "Unique name for all versions of the process definition", "type": "string"},
+          "processDefinitionName": {"description": "The name of a process definition",
+          "type": "string"}, "processDefinitionVersion": {"description": "The version
+          of a process definition", "type": "integer"}, "processDefinitionCategory":
+          {"description": "The category of a process definition", "type": "string"},
+          "processDefinitionDerivedFrom": {"description": "The derived from process
+          definition value when this is a dynamic process definition", "type": "string"},
+          "processDefinitionDerivedFromRoot": {"description": "The root derived from
+          process definition value when this is a dynamic process definition", "type":
+          "string"}, "processDefinitionDerivedVersion": {"description": "The derived
+          version of a process definition", "type": "integer"}, "deleteReason": {"description":
+          "The delete reason", "type": "string"}, "endTime": {"description": "End
+          time of a process instance", "type": "string"}, "activityId": {"description":
+          "The unique identifier of an activity", "type": "string"}, "__timeStamp":
+          {"description": "The time when process instance is started", "type": "string"}}}'
+        form-properties-submitted: '{"$schema": "http://json-schema.org/draft-04/schema#",
+          "$id": "http://workflow.opentext.com/schema/form-properties-submitted",
+          "title": "Form properties are submitted", "description": "Form properties
+          are submitted", "type": "object", "properties": {"processDefinitionId":
+          {"description": "The unique identifier of a process definition", "type":
+          "string"}, "processDefinitionKey": {"description": "Unique name for all
+          versions of the process definition", "type": "string"}, "processDefinitionName":
+          {"description": "The name of a process definition", "type": "string"}, "processDefinitionVersion":
+          {"description": "The version of a process definition", "type": "integer"},
+          "processDefinitionCategory": {"description": "The category of a process
+          definition", "type": "string"}, "deploymentId": {"description":"The unique
+          identifier of a deployment", "type": "string"}, "processDefinitionDerivedFrom":
+          {"description": "The derived from process definition value when this is
+          a dynamic process definition", "type": "string"}, "processDefinitionDerivedFromRoot":
+          {"description": "The root derived from process definition value when this
+          is a dynamic process definition", "type": "string"}, "processDefinitionDerivedVersion":
+          {"description": "The derived version of a process definition", "type": "integer"},
+          "processInstanceId": {"description": "The process instance ID of the variable",
+          "type": "string"}, "executionId": {"description": "The execution ID of a
+          variable", "type": "string"}, "taskId": {"description": "The unique identifier
+          of a task", "type": "string"}, "activityId": {"description": "The unique
+          identifier of an activity", "type": "string"}, "createTime": {"description":
+          "The time when form properties are submitted", "type": "string"}, "formPropertyId":
+          {"description": "The unique identifier of form property", "type": "string"},
+          "formPropertyValue": {"description": "The value of form property", "type":
+          "string"}, "__timeStamp": {"description": "The time when form properties
+          are submitted", "type": "string"}}}'
+        activity-end: '{"$schema": "http://json-schema.org/draft-04/schema#", "$id":
+          "http://workflow.opentext.com/schema/activity-end", "title": "Activity end",
+          "description": "Activity is ended", "type": "object", "properties": {"runtimeActivityInstanceId":
+          {"description": "The unique identifier of a runtime activity instance",
+          "type": "string"}, "processDefinitionId": {"description": "The unique identifier
+          of a process definition", "type": "string"}, "processInstanceId": {"description":
+          "The unique identifier of a process instance", "type": "string"}, "executionId":
+          {"description": "The unique identifier of an execution", "type": "string"},
+          "activityId": {"description": "The unique identifier of an activity", "type":
+          "string"}, "activityName": {"description": "The name of an activity", "type":
+          "string"}, "activityType": {"description": "The type of an activity", "type":
+          "string"}, "tenantId": {"description": "Tenant Id", "type": "string"}, "deleteReason":
+          {"description": "The delete reason", "type": "string"}, "endTime": {"description":
+          "End time of an activity", "type": "string"}, "startTime": {"description":
+          "The start time of an activity", "type": "string"}, "__timeStamp": {"description":
+          "The time when activity is ended", "type": "string"}}}'
+        entitylink-deleted: '{"$schema": "http://json-schema.org/draft-04/schema#",
+          "$id": "http://workflow.opentext.com/schema/entitylink-deleted", "title":
+          "An entity link is deleted", "description": "An entity link is deleted",
+          "type": "object", "properties": {"id": {"description": "The unique identifier
+          of an entity link", "type": "string"}, "entityLinkType": {"description":
+          "The type of entity link", "type": "string"}, "createTime": {"description":
+          "The time when entity link is created", "type": "string"}, "scopeDefinitionId":
+          {"description": "The unique identifier of scope definition", "type": "string"},
+          "scopeId": {"description": "The unique identifier of a scope", "type": "string"},
+          "scopeType": {"description": "The scope type of the identity link", "type":
+          "string"}, "refScopeDefinitionId": {"description": "The unique identifier
+          of reference scope definition", "type": "string"}, "refScopeId": {"description":
+          "The unique identifier of a reference scope", "type": "string"}, "refScopeType":
+          {"description": "The reference scope type of entity link", "type": "string"},
+          "hierarchyType": {"description": "The hierarchy type of entity link", "type":
+          "string"}, "__timeStamp": {"description": "The time when entity link is
+          deleted", "type": "string"}}}'
+        process-instance-property-changed: '{"$schema": "http://json-schema.org/draft-04/schema#",
+          "$id": "http://workflow.opentext.com/schema/process-instance-property-changed",
+          "title": "Process instance property is changed", "description": "A property
+          of a process instance is changed", "type": "object", "properties": {"processInstanceId":
+          {"description": "The unique identifier of a process instance", "type": "string"},
+          "name": {"description": "Name of a process instance", "type": "string"},
+          "businessKey": {"description": "Business key of the process instance - subscription
+          Id", "type": "string"}, "property": {"description": "Name of a process instance
+          property", "type": "string"}, "__timeStamp": {"description":"The time when
+          property of a process instance is changed", "type": "string"}}}'
+        identitylink-deleted: '{"$schema": "http://json-schema.org/draft-04/schema#",
+          "$id": "http://workflow.opentext.com/schema/identitylink-deleted", "title":
+          "An identity link is deleted", "description": "An identity link is deleted",
+          "type": "object", "properties": {"id": {"description": "The unique identifier
+          of an identity link", "type": "string"}, "__timeStamp": {"description":
+          "The time when identity link is deleted", "type": "string"}}}'
+        entitylink-created: '{"$schema": "http://json-schema.org/draft-04/schema#",
+          "$id": "http://workflow.opentext.com/schema/entitylink-created", "title":
+          "An entity link is created", "description": "An entity link is created",
+          "type": "object", "properties": {"id": {"description": "The unique identifier
+          of an entity link", "type": "string"}, "entityLinkType": {"description":
+          "The type of entity link", "type": "string"}, "createTime": {"description":
+          "The time when entity link is created", "type": "string"}, "scopeDefinitionId":
+          {"description": "The unique identifier of scope definition", "type": "string"},
+          "scopeId": {"description": "The unique identifier of a scope", "type": "string"},
+          "scopeType": {"description": "The scope type of the identity link", "type":
+          "string"}, "refScopeDefinitionId": {"description": "The unique identifier
+          of reference scope definition", "type": "string"}, "refScopeId": {"description":
+          "The unique identifier of a reference scope", "type": "string"}, "refScopeType":
+          {"description": "The reference scope type of entity link", "type": "string"},
+          "hierarchyType": {"description": "The hierarchy type of entity link", "type":
+          "string"}, "__timeStamp": {"description": "The time when entity link is
+          created", "type": "string"}}}'
+        historic-user-task-log-record: '{"$schema": "http://json-schema.org/draft-04/schema#",
+          "$id": "http://workflow.opentext.com/schema/historic-user-task-log-record",
+          "title": "Historic user task log is recorded", "description": "Historic
+          user task log is recorded", "type": "object", "properties": {"logEntryData":
+          {"description": "The log entry data", "type": "string"}, "processInstanceId":
+          {"description": "The unique identifier of a process instance", "type": "string"},
+          "executionId": {"description": "The unique identifier of an execution",
+          "type": "string"}, "processDefinitionId": {"description": "The unique identifier
+          of a process definition", "type": "string"}, "taskId": {"description": "The
+          unique identifier of a task", "type": "string"}, "tenantId": {"description":
+          "Tenant Id", "type": "string"}, "createTime": {"description": "The time
+          when user task log is recorded", "type": "string"}, "userId": {"description":
+          "The unique identifier of a user", "type": "string"}, "logEntryType": {"description":
+          "The type of log entry", "type": "string"}, "scopeId": {"description": "The
+          unique identifier of a scope", "type": "string"}, "scopeType": {"description":
+          "The scope type", "type": "string"}, "subScopeId": {"description": "The
+          unique identifier of a sub scope", "type": "string"}, "scopeDefinitionId":
+          {"description": "The unique identifier of scope definition", "type": "string"},
+          "__timeStamp": {"description": "The time when historic user task log is
+          recorded", "type": "string"}}}'
+        historic-detail-variable-update: '{"$schema": "http://json-schema.org/draft-04/schema#",
+          "$id": "http://workflow.opentext.com/schema/historic-detail-variable-update",
+          "title": "Historic detail Variable is created or updated", "description":
+          "Historic detail Variable is created or updated", "type": "object", "properties":
+          {"id": {"description": "The unique identifier of a variable", "type": "string"},
+          "processInstanceId": {"description": "The unique identifier of a process
+          instance", "type": "string"}, "executionId": {"description": "The unique
+          identifier of an execution", "type": "string"}, "taskId": {"description":
+          "The unique identifier of a task", "type": "string"}, "name": {"description":
+          "Name of a variable", "type": "string"}, "scopeId": {"description": "The
+          scope Id of a variable", "type": "string"}, "subScopeId": {"description":
+          "The sub scope Id of a variable", "type": "string"}, "scopeType": {"description":
+          "The scope type of a variable", "type": "string"}, "variableType": {"description":
+          "Type of a variable", "type": "string"}, "variableTextValue": {"description":
+          "The first test value of a variable", "type": "string"}, "variableTextValue2":
+          {"description": "The second text value of a variable", "type": "string"},
+          "variableDoubleValue": {"description": "The double value of a variable",
+          "type": "number"}, "variableLongValue": {"description": "The long value
+          of a variable", "type": "number"}, "variableBytesValue": {"description":
+          "The byte value of a variable", "type": "string"}, "processDefinitionId":
+          {"description": "The unique identifier of a process definition", "type":
+          "string"}, "processDefinitionKey": {"description": "Unique name for all
+          versions of the process definition", "type": "string"}, "processDefinitionName":
+          {"description": "The name of a process definition", "type": "string"}, "processDefinitionVersion":
+          {"description": "The version of a process definition", "type": "integer"},
+          "processDefinitionCategory": {"description": "The category of a process
+          definition", "type": "string"}, "deploymentId": {"description":"The unique
+          identifier of a deployment", "type": "string"}, "processDefinitionDerivedFrom":
+          {"description": "The derived from process definition value when this is
+          a dynamic process definition", "type": "string"}, "processDefinitionDerivedFromRoot":
+          {"description": "The root derived from process definition value when this
+          is a dynamic process definition", "type": "string"}, "processDefinitionDerivedVersion":
+          {"description": "The derived version of a process definition", "type": "integer"},
+          "isMiRootExecution": {"description": "Is it a multi instance root execution,
+          boolean value", "type": "boolean"}, "createTime": {"description": "The time
+          when variable is created", "type": "string"}, "runtimeActivityInstanceId":
+          {"description": "The unique identifier of a runtime activity instance",
+          "type": "string"}, "activityId": {"description": "The unique identifier
+          of an activity", "type": "string"}, "sourceExecutionId": {"description":
+          "The unique identifier of source execution", "type": "string"}, "__timeStamp":
+          {"description": "The time when variable is created or updated", "type":
+          "string"}}}'
+        variable-removed: '{"$schema": "http://json-schema.org/draft-04/schema#",
+          "$id": "http://workflow.opentext.com/schema/variable-removed", "title":
+          "Remove variable", "description": "A variable is removed", "type": "object",
+          "properties": {"id": {"description": "The unique identifier of a variable",
+          "type": "string"}, "__timeStamp": {"description": "The time when variable
+          is removed", "type": "string"}}}'
+        historic-user-task-log-delete: '{"$schema": "http://json-schema.org/draft-04/schema#",
+          "$id": "http://workflow.opentext.com/schema/historic-user-task-log-delete",
+          "title": "A historic task log is deleted", "description": "A historic task
+          log is deleted", "type": "object", "properties": {"logNumber": {"description":
+          "The log number", "type": "string"}, "__timeStamp": {"description": "The
+          time when historic user task log record is deleted", "type": "string"}}}'
+        task-assignee-changed: '{"$schema": "http://json-schema.org/draft-04/schema#",
+          "$id": "http://workflow.opentext.com/schema/task-assignee-changed", "title":
+          "Change assignee of the task", "description": "Assignee of a task is changed",
+          "type": "object", "properties": {"assignee": {"description": "Assignee of
+          a task", "type": "string"}, "executionId": {"description": "The unique identifier
+          of an execution", "type": "string"}, "activityId": {"description": "The
+          unique identifier of an activity", "type": "string"}, "runtimeActivityInstanceId":
+          {"description": "The unique identifier of a runtime activity instance",
+          "type": "string"}, "activityAssigneeHandled": {"description": "Activity
+          assignee handled", "type": "boolean"}, "id": {"description": "The unique
+          identifier of a task", "type": "string"}, "createTime": {"description":
+          "The time when assignee of task is changed", "type": "string"}, "__timeStamp":
+          {"description": "The time when assignee of task is changed", "type": "string"}}}'
+        task-property-changed: '{"$schema": "http://json-schema.org/draft-04/schema#",
+          "$id": "http://workflow.opentext.com/schema/task-property-changed", "title":
+          "Task property is changed", "description": "A task property is changed","type":
+          "object", "properties": {"id": {"description": "The unique identifier of
+          a task", "type": "string"}, "name": {"description": "The name of a task",
+          "type": "string"}, "parentTaskId": {"description": "The unique identifier
+          of a parent task", "type": "string"}, "description": {"description": "The
+          description of a task", "type": "string"}, "owner": {"description": "Owner
+          of a task", "type": "string"}, "assignee": {"description": "Assignee of
+          a task", "type": "string"}, "createTime": {"description": "The time when
+          task is created", "type": "string"}, "taskDefinitionKey": {"description":
+          "The id of the activity in the process defining this task or null if this
+          is not related to a process", "type": "string"}, "taskDefinitionId": {"description":
+          "Reference to the task definition or null if it is not related to any task
+          definition", "type": "string"}, "formKey": {"description": "The form key
+          for a user task", "type": "string"}, "priority": {"description": "Indication
+          of how important/urgent this task is with a number between 0 and 100 where
+          higher values mean a higher priority and lower values mean lower priority:
+          [0..19] lowest, [20..39] low, [40..59] normal, [60..79] high [80..100] highest",
+          "type": "integer"}, "dueDate": {"description": "Due date of the task", "type":
+          "string"}, "category": {"description": "The category of a task", "type":
+          "string"}, "claimTime": {"description": "The claim time of this task", "type":
+          "string"}, "tenantId": {"description": "The unique identifier of a tenant
+          for this task", "type": "string"}, "processInstanceId": {"description":
+          "The unique identifier of a process instance", "type": "string"}, "executionId":
+          {"description": "The unique identifier of an execution", "type": "string"},
+          "processDefinitionId": {"description": "The unique identifier of a process
+          definition", "type": "string"}, "processDefinitionKey": {"description":
+          "Unique name for all versions of the process definition", "type": "string"},
+          "processDefinitionName": {"description": "The name of a process definition",
+          "type": "string"}, "processDefinitionVersion": {"description": "The version
+          of a process definition", "type": "integer"}, "processDefinitionCategory":
+          {"description": "The category of a process definition", "type": "string"},
+          "deploymentId": {"description":"The unique identifier of a deployment",
+          "type": "string"}, "processDefinitionDerivedFrom": {"description": "The
+          derived from process definition value when this is a dynamic process definition",
+          "type": "string"}, "processDefinitionDerivedFromRoot": {"description": "The
+          root derived from process definition value when this is a dynamic process
+          definition", "type": "string"}, "processDefinitionDerivedVersion": {"description":
+          "The derived version of a process definition", "type": "integer"}, "__timeStamp":
+          {"description": "The time when task property is changed", "type": "string"}}}'
+        activity-start: '{"$schema": "http://json-schema.org/draft-04/schema#", "$id":
+          "http://workflow.opentext.com/schema/activity-start", "title": "Activity
+          start", "description": "An activity is started", "type": "object", "properties":
+          {"runtimeActivityInstanceId": {"description": "The unique identifier of
+          a runtime activity instance", "type": "string"}, "processDefinitionId":
+          {"description": "The unique identifier of a process definition", "type":
+          "string"}, "processInstanceId": {"description": "The unique identifier of
+          a process instance", "type": "string"}, "executionId": {"description": "The
+          unique identifier of an execution", "type": "string"}, "activityId": {"description":
+          "The unique identifier of an activity", "type": "string"}, "activityName":
+          {"description": "The name of an activity", "type": "string"}, "activityType":
+          {"description": "The type of an activity", "type": "string"}, "tenantId":
+          {"description": "Tenant Id", "type": "string"}, "startTime": {"description":
+          "The start time of an activity", "type": "string"}, "__timeStamp": {"description":
+          "The time when activity is started", "type": "string"}}}'
+        task-owner-changed: '{"$schema": "http://json-schema.org/draft-04/schema#",
+          "$id": "http://workflow.opentext.com/schema/task-owner-changed", "title":
+          "Change owner of the task", "description": "A task owner is changed", "type":
+          "object", "properties": {"id": {"description": "The unique identifier of
+          a task", "type": "string"}, "owner": {"description": "Owner of a task",
+          "type": "string"}, "createTime": {"description": "The time when owner of
+          task is changed", "type": "string"}, "runtimeActivityInstanceId": {"description":
+          "The unique identifier of a runtime activity instance", "type": "string"},
+          "__timeStamp": {"description": "The time when owner of the task is changed",
+          "type": "string"}}}'
+        process-instance-deleted: '{"$schema": "http://json-schema.org/draft-04/schema#",
+          "$id": "http://workflow.opentext.com/schema/process-instance-deleted", "title":
+          "A process instance is deleted", "description": "A process instance is deleted",
+          "type": "object", "properties": {"processInstanceId": {"description": "The
+          unique identifier of a process instance", "type": "string"}, "__timeStamp":
+          {"description": "The time when process instance is deleted", "type": "string"}}}'
+        activity-full: '{"$schema": "http://json-schema.org/draft-04/schema#", "$id":
+          "http://workflow.opentext.com/schema/activity-full", "title": "Activity
+          full", "description": "Activity is full", "type": "object", "properties":
+          {"runtimeActivityInstanceId": {"description": "The unique identifier of
+          a runtime activity instance", "type": "string"}, "processDefinitionId":
+          {"description": "The unique identifier of a process definition", "type":
+          "string"}, "processInstanceId": {"description": "The unique identifier of
+          a process instance", "type": "string"}, "executionId": {"description": "The
+          unique identifier of an execution", "type": "string"}, "activityId": {"description":
+          "The unique identifier of an activity", "type": "string"}, "activityName":
+          {"description": "The name of an activity", "type": "string"}, "activityType":
+          {"description": "The type of an activity", "type": "string"}, "tenantId":
+          {"description": "Tenant Id", "type": "string"}, "deleteReason": {"description":
+          "The delete reason", "type": "string"}, "endTime": {"description": "End
+          time of an activity", "type": "string"}, "startTime": {"description": "The
+          start time of an activity", "type": "string"}, "__timeStamp": {"description":
+          "The time when activity is full", "type": "string"}}}'
+        update-process-definition-cascade: '{"$schema": "http://json-schema.org/draft-04/schema#",
+          "$id": "http://workflow.opentext.com/schema/update-process-definition-cascade",
+          "title": "Update process definition cascade", "description": "Update process
+          definition cascade", "type": "object", "properties": {"processDefinitionId":
+          {"description": "The unique identifier of a process definition", "type":
+          "string"}, "processInstanceId": {"description": "The unique identifier of
+          a process instance", "type": "string"}, "__timeStamp": {"description": "The
+          time when process definition is updated cascade", "type": "string"}}}'
+        variable-updated: '{"$schema": "http://json-schema.org/draft-04/schema#",
+          "$id": "http://workflow.opentext.com/schema/variable-updated", "title":
+          "Update Process Variable", "description": "A variable is updated", "type":
+          "object", "properties": {"id": {"description": "The unique identifier of
+          a variable", "type": "string"}, "processInstanceId": {"description": "The
+          unique identifier of a process instance", "type": "string"}, "executionId":
+          {"description": "The unique identifier of an execution", "type": "string"},
+          "taskId": {"description": "The unique identifier of a task", "type": "string"},
+          "name": {"description": "Name of a variable", "type": "string"}, "scopeId":
+          {"description": "The scope Id of a variable", "type": "string"}, "subScopeId":
+          {"description": "The sub scope Id of a variable", "type": "string"}, "scopeType":
+          {"description": "The scope type of a variable", "type": "string"}, "variableType":
+          {"description": "Type of a variable", "type": "string"}, "variableTextValue":
+          {"description": "The first test value of a variable", "type": "string"},
+          "variableTextValue2": {"description": "The second text value of a variable",
+          "type": "string"}, "variableDoubleValue": {"description": "The double value
+          of a variable", "type": "number"}, "variableLongValue": {"description":
+          "The long value of a variable", "type": "number"}, "variableBytesValue":
+          {"description": "The byte value of a variable", "type": "string"}, "processDefinitionId":
+          {"description": "The unique identifier of a process definition", "type":
+          "string"}, "processDefinitionKey": {"description": "Unique name for all
+          versions of the process definition", "type": "string"}, "processDefinitionName":
+          {"description": "The name of a process definition", "type": "string"}, "processDefinitionVersion":
+          {"description": "The version of a process definition", "type": "integer"},
+          "processDefinitionCategory": {"description": "The category of a process
+          definition", "type": "string"}, "deploymentId": {"description":"The unique
+          identifier of a deployment", "type": "string"}, "processDefinitionDerivedFrom":
+          {"description": "The derived from process definition value when this is
+          a dynamic process definition", "type": "string"}, "processDefinitionDerivedFromRoot":
+          {"description": "The root derived from process definition value when this
+          is a dynamic process definition", "type": "string"}, "processDefinitionDerivedVersion":
+          {"description": "The derived version of a process definition", "type": "integer"},
+          "lastUpdatedTime": {"description": "The last updated time of a variable",
+          "type": "string"}, "__timeStamp": {"description": "The time when variable
+          is updated", "type": "string"}}}'
+  /historic-process-instances:
+    get:
+      tags:
+      - Historic Process Instances
+      summary: List historic process instances
+      description: List historic process instances
+      operationId: listHistoricProcessInstances
+      parameters:
+      - name: processInstanceId
+        in: query
+        description: An id of the historic process instance.
+        schema:
+          type: string
+      - name: processInstanceName
+        in: query
+        description: A name of the historic process instance.
+        schema:
+          type: string
+      - name: processInstanceNameLike
+        in: query
+        description: A name of the historic process instance used in a like query.
+        schema:
+          type: string
+      - name: processInstanceNameLikeIgnoreCase
+        in: query
+        description: A name of the historic process instance used in a like query
+          ignoring case.
+        schema:
+          type: string
+      - name: processDefinitionKey
+        in: query
+        description: The process definition key of the historic process instance.
+        schema:
+          type: string
+      - name: processDefinitionId
+        in: query
+        description: The process definition id of the historic process instance.
+        schema:
+          type: string
+      - name: processDefinitionName
+        in: query
+        description: The process definition name of the historic process instance.
+        schema:
+          type: string
+      - name: processDefinitionCategory
+        in: query
+        description: The process definition category of the historic process instance.
+        schema:
+          type: string
+      - name: processDefinitionVersion
+        in: query
+        description: The process definition version of the historic process instance.
+        schema:
+          type: string
+      - name: deploymentId
+        in: query
+        description: The deployment id of the historic process instance.
+        schema:
+          type: string
+      - name: businessKey
+        in: query
+        description: The business key of the historic process instance.
+        schema:
+          type: string
+      - name: businessKeyLike
+        in: query
+        description: Only return instances with a businessKey like this key.
+        schema:
+          type: string
+      - name: involvedUser
+        in: query
+        description: An involved user of the historic process instance.
+        schema:
+          type: string
+      - name: finished
+        in: query
+        description: Indication if the historic process instance is finished.
+        schema:
+          type: boolean
+      - name: superProcessInstanceId
+        in: query
+        description: An optional parent process id of the historic process instance.
+        schema:
+          type: string
+      - name: excludeSubprocesses
+        in: query
+        description: Return only historic process instances which are not sub processes.
+        schema:
+          type: boolean
+      - name: finishedAfter
+        in: query
+        description: Return only historic process instances that were finished after
+          this date.
+        schema:
+          type: string
+          format: date-time
+      - name: finishedBefore
+        in: query
+        description: Return only historic process instances that were finished before
+          this date.
+        schema:
+          type: string
+          format: date-time
+      - name: startedAfter
+        in: query
+        description: Return only historic process instances that were started after
+          this date.
+        schema:
+          type: string
+          format: date-time
+      - name: startedBefore
+        in: query
+        description: Return only historic process instances that were started before
+          this date.
+        schema:
+          type: string
+          format: date-time
+      - name: startedBy
+        in: query
+        description: Return only historic process instances that were started by this
+          user.
+        schema:
+          type: string
+      - name: includeProcessVariables
+        in: query
+        description: An indication if the historic process instance variables should
+          be returned as well.
+        schema:
+          type: boolean
+      - name: filterByCurrentSubscription
+        in: query
+        description: Only return the process instances in the current subscription
+        schema:
+          type: boolean
+      - name: dueOn
+        in: query
+        description: Only return process instances which are due on the given date.
+        schema:
+          type: string
+          format: date-time
+      - name: dueBefore
+        in: query
+        description: Only return process instances which are due before the given
+          date.
+        schema:
+          type: string
+          format: date-time
+      - name: dueAfter
+        in: query
+        description: Only return process instances which are due after the given date.
+        schema:
+          type: string
+          format: date-time
+      - name: callbackId
+        in: query
+        description: Only return instances with the given callbackId.
+        schema:
+          type: string
+      - name: callbackType
+        in: query
+        description: Only return instances with the given callbackType.
+        schema:
+          type: string
+      - name: sortEmptyValuesOnTop
+        in: query
+        description: If true, empty values are ordered at top of list. If false, empty
+          values are ordered at bottom of list
+        schema:
+          type: boolean
+      - name: includeUserIds
+        in: query
+        description: Indication to include OTDS Id instead of email for users in the
+          response.
+        schema:
+          type: boolean
+          default: false
+      - name: includeProcessComments
+        in: query
+        description: Indication to include process comments in the result.
+        schema:
+          type: boolean
+      responses:
+        200:
+          description: Indicates that historic process instances could be queried.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CollectionModelListEntityModelWorkflowHistoricProcessInstanceResponse'
+        400:
+          description: Indicates an parameter was passed in the wrong format. The
+            status-message contains additional information.
+          content: {}
+      security:
+      - oAuth: []
+  /historic-process-instances/{processInstanceId}:
+    get:
+      tags:
+      - Historic Process Instances
+      summary: Get a historic process instance
+      description: Get a historic process instance
+      operationId: getHistoricProcessInstance
+      parameters:
+      - name: processInstanceId
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: includeUserIds
+        in: query
+        description: Indication to include OTDS Id instead of email for users in the
+          response.
+        schema:
+          type: boolean
+          default: false
+      - name: includeProcessVariables
+        in: query
+        description: An indication if the historic process instance global variables
+          should be returned as well.
+        schema:
+          type: boolean
+          default: false
+      responses:
+        200:
+          description: Indicates that the historic process instances could be found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EntityModelWorkflowHistoricProcessInstanceResponse'
+        404:
+          description: Indicates that the historic process instances could not be
+            found.
+          content: {}
+      security:
+      - oAuth: []
+  /historic-task-instances:
+    get:
+      tags:
+      - Historic Tasks
+      summary: List historic task instances
+      description: List historic task instances.
+      operationId: listHistoricTaskInstances
+      parameters:
+      - name: taskId
+        in: query
+        description: An id of the historic task instance.
+        schema:
+          type: string
+      - name: processInstanceId
+        in: query
+        description: The process instance id of the historic task instance.
+        schema:
+          type: string
+      - name: processInstanceIdWithChildren
+        in: query
+        description: Selects the historic task instances for the process instance
+          and its children.
+        schema:
+          type: string
+      - name: processDefinitionKey
+        in: query
+        description: The process definition key of the historic task instance.
+        schema:
+          type: string
+      - name: processDefinitionKeyLike
+        in: query
+        description: The process definition key of the historic task instance, which
+          matches the given value.
+        schema:
+          type: string
+      - name: processDefinitionId
+        in: query
+        description: The process definition id of the historic task instance.
+        schema:
+          type: string
+      - name: processDefinitionName
+        in: query
+        description: The process definition name of the historic task instance.
+        schema:
+          type: string
+      - name: processDefinitionNameLike
+        in: query
+        description: The process definition name of the historic task instance, which
+          matches the given value.
+        schema:
+          type: string
+      - name: processBusinessKey
+        in: query
+        description: The process instance business key of the historic task instance.
+        schema:
+          type: string
+      - name: processBusinessKeyLike
+        in: query
+        description: The process instance business key of the historic task instance
+          that matches the given value.
+        schema:
+          type: string
+      - name: executionId
+        in: query
+        description: The execution id of the historic task instance.
+        schema:
+          type: string
+      - name: taskDefinitionKey
+        in: query
+        description: The task definition key for tasks part of a process
+        schema:
+          type: string
+      - name: taskDefinitionKeys
+        in: query
+        description: The task definition key for tasks part of a process
+        schema:
+          type: string
+      - name: taskName
+        in: query
+        description: The task name of the historic task instance.
+        schema:
+          type: string
+      - name: taskNameLike
+        in: query
+        description: The task name with like operator for the historic task instance.
+        schema:
+          type: string
+      - name: taskDescription
+        in: query
+        description: The task description of the historic task instance.
+        schema:
+          type: string
+      - name: taskDescriptionLike
+        in: query
+        description: The task description with like operator for the historic task
+          instance.
+        schema:
+          type: string
+      - name: taskCategory
+        in: query
+        description: Select tasks with the given category. Note that this is the task
+          category, not the category of the process definition (namespace within the
+          BPMN Xml).
+        schema:
+          type: string
+      - name: taskDeleteReason
+        in: query
+        description: The task delete reason of the historic task instance.
+        schema:
+          type: string
+      - name: taskDeleteReasonLike
+        in: query
+        description: The task delete reason with like operator for the historic task
+          instance.
+        schema:
+          type: string
+      - name: taskAssignee
+        in: query
+        description: The assignee of the historic task instance.
+        schema:
+          type: string
+      - name: taskAssigneeLike
+        in: query
+        description: The assignee with like operator for the historic task instance.
+          This parameter works only with user emails.
+        schema:
+          type: string
+      - name: taskOwner
+        in: query
+        description: The owner of the historic task instance.
+        schema:
+          type: string
+      - name: taskOwnerLike
+        in: query
+        description: The owner with like operator for the historic task instance.
+          This parameter works only with user emails.
+        schema:
+          type: string
+      - name: taskInvolvedUser
+        in: query
+        description: An involved user of the historic task instance
+        schema:
+          type: string
+      - name: taskPriority
+        in: query
+        description: The priority of the historic task instance.
+        schema:
+          type: string
+      - name: finished
+        in: query
+        description: Indication if the historic task instance is finished.
+        schema:
+          type: boolean
+      - name: processFinished
+        in: query
+        description: Indication if the process instance of the historic task instance
+          is finished.
+        schema:
+          type: boolean
+      - name: parentTaskId
+        in: query
+        description: An optional parent task id of the historic task instance.
+        schema:
+          type: string
+      - name: dueDate
+        in: query
+        description: Return only historic task instances that have a due date equal
+          this date.
+        schema:
+          type: string
+          format: date-time
+      - name: dueDateAfter
+        in: query
+        description: Return only historic task instances that have a due date after
+          this date.
+        schema:
+          type: string
+          format: date-time
+      - name: dueDateBefore
+        in: query
+        description: Return only historic task instances that have a due date before
+          this date.
+        schema:
+          type: string
+          format: date-time
+      - name: withoutDueDate
+        in: query
+        description: Return only historic task instances that have no due-date. When
+          false is provided as value, this parameter is ignored.
+        schema:
+          type: boolean
+      - name: taskCompletedOn
+        in: query
+        description: Return only historic task instances that have been completed
+          on this date.
+        schema:
+          type: string
+          format: date-time
+      - name: taskCompletedAfter
+        in: query
+        description: Return only historic task instances that have been completed
+          after this date.
+        schema:
+          type: string
+          format: date-time
+      - name: taskCompletedBefore
+        in: query
+        description: Return only historic task instances that have been completed
+          before this date.
+        schema:
+          type: string
+          format: date-time
+      - name: taskCreatedOn
+        in: query
+        description: Return only historic task instances that were created on this
+          date.
+        schema:
+          type: string
+          format: date-time
+      - name: taskCreatedBefore
+        in: query
+        description: Return only historic task instances that were created before
+          this date.
+        schema:
+          type: string
+          format: date-time
+      - name: taskCreatedAfter
+        in: query
+        description: Return only historic task instances that were created after this
+          date.
+        schema:
+          type: string
+          format: date-time
+      - name: includeTaskLocalVariables
+        in: query
+        description: An indication if the historic task instance local variables should
+          be returned as well.
+        schema:
+          type: boolean
+      - name: includeProcessVariables
+        in: query
+        description: An indication if the historic task instance global variables
+          should be returned as well.
+        schema:
+          type: boolean
+      - name: includeTaskAssignments
+        in: query
+        description: An indication if the historic task instance assigments should
+          be returned as well.
+        schema:
+          type: boolean
+      - name: includeTaskComments
+        in: query
+        description: An indication if the historic task instance comments should be
+          returned as well.
+        schema:
+          type: boolean
+      - name: scopeDefinitionId
+        in: query
+        description: Only return historic task instances with the given scopeDefinitionId.
+        schema:
+          type: string
+      - name: scopeId
+        in: query
+        description: Only return historic task instances with the given scopeId.
+        schema:
+          type: string
+      - name: scopeType
+        in: query
+        description: Only return historic task instances with the given scopeType.
+        schema:
+          type: string
+      - name: filterByCurrentSubscription
+        in: query
+        description: Only return the historic process tasks in the current subscription
+        schema:
+          type: boolean
+      - name: excludeSubTasks
+        in: query
+        description: Only return historic process tasks that are not a subtask of
+          another task.
+        schema:
+          type: boolean
+      - name: sortEmptyValuesOnTop
+        in: query
+        description: If true, empty values are ordered at top of list. If false, empty
+          values are ordered at bottom of list
+        schema:
+          type: boolean
+      - name: includeUserIds
+        in: query
+        description: Indication to include OTDS Id instead of email for users in the
+          response.
+        schema:
+          type: boolean
+          default: false
+      - name: includeGroupIds
+        in: query
+        description: Indication to include id instead of name for groups and roles
+          in response.
+        schema:
+          type: boolean
+          default: false
+      responses:
+        200:
+          description: Indicates that historic task instances could be queried.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CollectionModelListEntityModelWorkflowHistoricTaskInstanceResponse'
+        404:
+          description: Indicates an parameter was passed in the wrong format. The
+            status-message contains additional information.
+          content: {}
+      security:
+      - oAuth: []
+  /historic-task-instances/{taskId}:
+    get:
+      tags:
+      - Historic Tasks
+      summary: Get a historic task instance
+      description: Get a historic task instance.
+      operationId: getHistoricTaskInstance
+      parameters:
+      - name: taskId
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: includeTaskLocalVariables
+        in: query
+        description: An indication if the historic task instance local variables should
+          be returned as well.
+        schema:
+          type: boolean
+      - name: includeProcessVariables
+        in: query
+        description: An indication if the historic task instance global variables
+          should be returned as well.
+        schema:
+          type: boolean
+      - name: includeTaskComments
+        in: query
+        description: An indication if the historic task instance comments should be
+          returned as well.
+        schema:
+          type: boolean
+      - name: includeTaskAssignments
+        in: query
+        description: An indication if the historic task instance assigments should
+          be returned as well.
+        schema:
+          type: boolean
+      - name: includeUserIds
+        in: query
+        description: Indication to include OTDS Id instead of email for users in the
+          response.
+        schema:
+          type: boolean
+          default: false
+      - name: includeGroupIds
+        in: query
+        description: Indication to include id instead of name for groups and roles
+          in response.
+        schema:
+          type: boolean
+          default: false
+      responses:
+        200:
+          description: Indicates that the historic task instances could be found.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EntityModelWorkflowHistoricTaskInstanceResponse'
+        404:
+          description: Indicates that the historic task instances could not be found.
+          content: {}
+      security:
+      - oAuth: []
+  /process-instances/audit-logs:
+    get:
+      tags:
+      - Audit Log
+      summary: List process instances audit log
+      description: List process instances audit logs
+      operationId: listProcessInstancesAuditLog
+      parameters:
+      - name: eventType
+        in: query
+        description: An event type id registered for specific process events
+        schema:
+          type: string
+          enum:
+          - process-start
+          - process-end
+      - name: processInstanceId
+        in: query
+        description: An id of the process instance.
+        schema:
+          type: string
+      - name: processDefinitionId
+        in: query
+        description: The process definition id of the process instance.
+        schema:
+          type: string
+      - name: userId
+        in: query
+        description: The otds Uuid of the user.
+        schema:
+          type: string
+      - name: filterByCurrentSubscription
+        in: query
+        description: Only return the process instances event logs in the current subscription
+        schema:
+          type: boolean
+      - name: offset
+        in: query
+        description: Start position value in the list of items, used for pagination.
+        schema:
+          type: string
+      - name: count
+        in: query
+        description: Number of items to be limited in the response, used for pagination.
+          By default the count value is set to 10.
+        schema:
+          type: string
+      - name: Before
+        in: query
+        description: Only return process instances started before the given date.
+        schema:
+          type: string
+          format: date-time
+      - name: After
+        in: query
+        description: Only return process instances started after the given date.
+        schema:
+          type: string
+          format: date-time
+      responses:
+        200:
+          description: Indicates that process instances audit log could be queried.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CollectionModelAuditProcessInstanceResponse'
+        400:
+          description: Indicates an parameter was passed in the wrong format. The
+            status-message contains additional information.
+          content: {}
+  /task-instances/audit-logs:
+    get:
+      tags:
+      - Audit Log
+      summary: List process task instances audit log
+      description: List process task instances audit logs
+      operationId: listProcessTaskInstancesAuditLog
+      parameters:
+      - name: eventType
+        in: query
+        description: An event type id registered for specific process task events
+        schema:
+          type: string
+          enum:
+          - process-task-create
+          - process-task-assignment
+          - process-task-complete
+      - name: taskId
+        in: query
+        description: An id of the process task instance.
+        schema:
+          type: string
+      - name: taskDefinitionKey
+        in: query
+        description: The task definition key for tasks part of a process.
+        schema:
+          type: string
+      - name: taskName
+        in: query
+        description: The task name of the process task instance.
+        schema:
+          type: string
+      - name: taskAssignee
+        in: query
+        description: The assignee of the process task instance.
+        schema:
+          type: string
+      - name: processInstanceId
+        in: query
+        description: The process instance id of the task instance.
+        schema:
+          type: string
+      - name: processDefinitionId
+        in: query
+        description: The process definition id of the task instance.
+        schema:
+          type: string
+      - name: userId
+        in: query
+        description: The otds Uuid of the user.
+        schema:
+          type: string
+      - name: filterByCurrentSubscription
+        in: query
+        description: Only return the process task instances event logs in the current
+          subscription
+        schema:
+          type: boolean
+      - name: offset
+        in: query
+        description: Start position value in the list of items, used for pagination.
+        schema:
+          type: string
+      - name: count
+        in: query
+        description: Number of items to be limited in the response, used for pagination.
+          By default the count value is set to 10.
+        schema:
+          type: string
+      - name: Before
+        in: query
+        description: Only return process task instances started before the given date.
+        schema:
+          type: string
+          format: date-time
+      - name: After
+        in: query
+        description: Only return process task instances started after the given date.
+        schema:
+          type: string
+          format: date-time
+      responses:
+        200:
+          description: Indicates that process task instances audit log could be queried.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CollectionModelAuditProcessTaskInstanceResponse'
+        400:
+          description: Indicates an parameter was passed in the wrong format. The
+            status-message contains additional information.
+          content: {}
+  /version:
+    get:
+      tags:
+      - Version
+      summary: Get workflow version information
+      description: Get the workflow version information.
+      operationId: getVersion
+      responses:
+        200:
+          description: Indicates the version info is returned.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EntityModelWorkflowHistoryVersionInformationResponse'
+      security:
+      - oAuth: []
+components:
+  schemas:
+    AuditProcessActivityInstanceResponse:
+      type: object
+      properties:
+        tenantid:
+          type: string
+        executionId:
+          type: string
+          example: 2296c6fb-fffc-11eb-8fe9-207918d6adb6
+        activityId:
+          type: string
+          example: sid-71DCD54A-6CC2-4D06-AE26-5DD62324F7B
+        activityType:
+          type: string
+          example: startEvent
+        endTime:
+          type: string
+          format: date-time
+          example: 2020-04-02T17:20:18.722+05:30
+        subscriptionid:
+          type: string
+        startTime:
+          type: string
+          format: date-time
+          example: 2020-04-02T17:15:11.315+05:30
+        eventType:
+          type: string
+        subject:
+          type: string
+        userId:
+          type: string
+        processInstanceId:
+          type: string
+          example: 68cb0e33-74d7-11ea-a29e-50e08558ee22
+        processDefinitionId:
+          type: string
+          example: SampleDeployment:3:668738b2-74d7-11ea-a29e-50e08558ee22
+    AuditProcessInstanceResponse:
+      type: object
+      properties:
+        tenantid:
+          type: string
+        endTime:
+          type: string
+          format: date-time
+          example: 2020-04-02T17:20:18.722+05:30
+        subscriptionid:
+          type: string
+        businessKey:
+          type: string
+          example: SampleBusinessKey
+        id:
+          type: string
+          example: 68cb0e33-74d7-11ea-a29e-50e08558ee22
+        startTime:
+          type: string
+          format: date-time
+          example: 2020-04-02T17:15:11.315+05:30
+        eventType:
+          type: string
+        subject:
+          type: string
+        userId:
+          type: string
+        processDefinitionId:
+          type: string
+          example: SampleDeployment:3:668738b2-74d7-11ea-a29e-50e08558ee22
+    AuditProcessTaskInstanceResponse:
+      type: object
+      properties:
+        category:
+          type: string
+          example: SampleCategory
+        tenantid:
+          type: string
+        executionId:
+          type: string
+          example: 68cb0e35-74d7-11ea-a29e-50e08558ee22
+        subscriptionid:
+          type: string
+        assignee:
+          type: string
+          example: SampleAssignee
+        name:
+          type: string
+          example: Sample Task
+        id:
+          type: string
+          example: 68cb0e33-74d7-11ea-a29e-50e08558ee22
+        startTime:
+          type: string
+          format: date-time
+          example: 2020-04-02T17:15:11.315+05:30
+        eventType:
+          type: string
+        taskDefinitionKey:
+          type: string
+          example: SampleTaskDefinitionKey
+        subject:
+          type: string
+        userId:
+          type: string
+        processInstanceId:
+          type: string
+          example: 68cb0e33-74d7-11ea-a29e-50e08558ee22
+        processDefinitionId:
+          type: string
+          example: SampleDeployment:3:668738b2-74d7-11ea-a29e-50e08558ee22
+    CollectionModel:
+      type: object
+      properties:
+        links:
+          $ref: '#/components/schemas/Links'
+        content:
+          type: array
+          readOnly: true
+          items:
+            type: object
+            properties: {}
+    CollectionModelAuditProcessActivityInstanceResponse:
+      type: object
+      properties:
+        links:
+          $ref: '#/components/schemas/Links'
+        content:
+          type: array
+          readOnly: true
+          items:
+            $ref: '#/components/schemas/AuditProcessActivityInstanceResponse'
+    CollectionModelAuditProcessInstanceResponse:
+      type: object
+      properties:
+        links:
+          $ref: '#/components/schemas/Links'
+        content:
+          type: array
+          readOnly: true
+          items:
+            $ref: '#/components/schemas/AuditProcessInstanceResponse'
+    CollectionModelAuditProcessTaskInstanceResponse:
+      type: object
+      properties:
+        links:
+          $ref: '#/components/schemas/Links'
+        content:
+          type: array
+          readOnly: true
+          items:
+            $ref: '#/components/schemas/AuditProcessTaskInstanceResponse'
+    CollectionModelListEntityModelWorkflowHistoricActivityInstanceResponse:
+      type: object
+      properties:
+        links:
+          $ref: '#/components/schemas/Links'
+        content:
+          type: array
+          readOnly: true
+          items:
+            type: array
+            items:
+              $ref: '#/components/schemas/EntityModelWorkflowHistoricActivityInstanceResponse'
+    CollectionModelListEntityModelWorkflowHistoricProcessInstanceResponse:
+      type: object
+      properties:
+        links:
+          $ref: '#/components/schemas/Links'
+        content:
+          type: array
+          readOnly: true
+          items:
+            type: array
+            items:
+              $ref: '#/components/schemas/EntityModelWorkflowHistoricProcessInstanceResponse'
+    CollectionModelListEntityModelWorkflowHistoricTaskInstanceResponse:
+      type: object
+      properties:
+        links:
+          $ref: '#/components/schemas/Links'
+        content:
+          type: array
+          readOnly: true
+          items:
+            type: array
+            items:
+              $ref: '#/components/schemas/EntityModelWorkflowHistoricTaskInstanceResponse'
+    EntityModel:
+      type: object
+      properties:
+        links:
+          $ref: '#/components/schemas/Links'
+    EntityModelWorkflowHistoricActivityInstanceResponse:
+      type: object
+      properties:
+        activityName:
+          type: string
+          example: SampleActivityName
+        taskId:
+          type: string
+          example: 69287079-74d7-11ea-a29e-50e08558ee22
+        subscriptionId:
+          type: string
+          example: 76adec43-d43a-4112-9f49-cd7c64d1d75b
+        tenantId:
+          type: string
+          example: 56adec43-d43a-4112-9f49-cd7c64d1d75b
+        executionId:
+          type: string
+          example: 68cb0e35-74d7-11ea-a29e-50e08558ee22
+        activityId:
+          type: string
+          example: sid-1FA8A099-45BD-44B6-89A1-365EF6E35118
+        activityType:
+          type: string
+          example: userTask
+        endTime:
+          type: string
+          format: date-time
+          example: 2020-04-02T17:20:18.722+05:30
+        assignee:
+          type: string
+          example: John
+        id:
+          type: string
+          example: 68cb0e36-74d7-11ea-a29e-50e08558ee22
+        startTime:
+          type: string
+          format: date-time
+          example: 2020-04-02T17:15:11.315+05:30
+        durationInMillis:
+          type: integer
+          format: int64
+          example: 86400056
+        calledProcessInstanceId:
+          type: string
+          example: 68cb0ty3-74d7-11ea-a29e-50e08558ee22
+        processInstanceId:
+          type: string
+          example: 68cb0e33-74d7-11ea-a29e-50e08558ee22
+        processDefinitionId:
+          type: string
+          example: SampleDeployment:3:668738b2-74d7-11ea-a29e-50e08558ee22
+        links:
+          $ref: '#/components/schemas/Links'
+    EntityModelWorkflowHistoricProcessInstanceResponse:
+      type: object
+      properties:
+        subscriptionId:
+          type: string
+          example: cda90802-4bcc-4134-9815-95b8ed50b516
+        tenantId:
+          type: string
+          example: 56adec43-d43a-4112-9f49-cd7c64d1d75b
+        endTime:
+          type: string
+          format: date-time
+          example: 2020-04-02T17:20:18.722+05:30
+        variables:
+          type: array
+          items:
+            $ref: '#/components/schemas/WorkflowRuntimeVariableImpl'
+        callbackId:
+          type: string
+          example: SampleCallBackId
+        startUserId:
+          type: string
+          example: SampleUser
+        deleteReason:
+          type: string
+          example: SampleDeleteReason
+        endActivityId:
+          type: string
+          example: endEvent
+        callbackType:
+          type: string
+          example: SampleCallBackType
+        dueDate:
+          type: string
+          format: date-time
+          example: 2021-04-02T17:20:18.722+05:30
+        referenceId:
+          type: string
+          example: SampleReferenceId
+        startActivityId:
+          type: string
+          example: startEvent
+        businessKey:
+          type: string
+          example: SampleBusinessKey
+        referenceType:
+          type: string
+          example: event-to-bpmn-2.0-process
+        name:
+          type: string
+          example: Sample Process
+        id:
+          type: string
+          example: 68cb0e33-74d7-11ea-a29e-50e08558ee22
+        startTime:
+          type: string
+          format: date-time
+          example: 2020-04-02T17:15:11.315+05:30
+        comments:
+          type: array
+          items:
+            $ref: '#/components/schemas/WorkflowProcessCommentResponse'
+        processDefinitionDescription:
+          type: string
+          example: Sample Process Definition Description
+        superProcessInstanceId:
+          type: string
+          example: 53baeda7-6f40-11ea-8b7c-50e08558ee22
+        durationInMillis:
+          type: integer
+          format: int64
+          example: 86400056
+        processDefinitionName:
+          type: string
+          example: Sample Process Definition
+        processDefinitionId:
+          type: string
+          example: SampleDeployment:3:668738b2-74d7-11ea-a29e-50e08558ee22
+        links:
+          $ref: '#/components/schemas/Links'
+    EntityModelWorkflowHistoricTaskInstanceResponse:
+      type: object
+      properties:
+        category:
+          type: string
+          example: SampleCategory
+        subscriptionId:
+          type: string
+          example: c33fd1c5-65ce-11eb-8176-04ed339d7291
+        tenantId:
+          type: string
+          example: 56adec43-d43a-4112-9f49-cd7c64d1d75b
+        executionId:
+          type: string
+          example: 68cb0e35-74d7-11ea-a29e-50e08558ee22
+        endTime:
+          type: string
+          format: date-time
+          example: 2020-04-02T17:20:18.722+05:30
+        variables:
+          type: array
+          items:
+            $ref: '#/components/schemas/WorkflowRuntimeVariableImpl'
+        deleteReason:
+          type: string
+          example: Sample Delete Reason
+        dueDate:
+          type: string
+          format: date-time
+          example: 2020-04-13T17:15:11.315+05:30
+        assignee:
+          type: string
+          example: SampleAssignee
+        formKey:
+          type: string
+          example: SampleFormKey
+        parentTaskId:
+          type: string
+          example: 692870987-74d7-11ea-a29e-50e08558ee22
+        claimTime:
+          type: string
+          format: date-time
+        scopeType:
+          type: string
+          example: SampleScopeType
+        scopeId:
+          type: string
+          example: SampleScopeId
+        assignments:
+          type: array
+          items:
+            $ref: '#/components/schemas/WorkflowHistoricTaskIdentityResponse'
+        name:
+          type: string
+          example: Sample Task
+        priority:
+          type: integer
+          format: int32
+          example: 5
+        id:
+          type: string
+          example: 69287079-74d7-11ea-a29e-50e08558ee22
+        owner:
+          type: string
+          example: SampleOwner
+        description:
+          type: string
+          example: Sample Task Description
+        startTime:
+          type: string
+          format: date-time
+          example: 2020-04-02T17:15:11.315+05:30
+        comments:
+          type: array
+          items:
+            $ref: '#/components/schemas/WorkflowHistoricTaskCommentResponse'
+        taskDefinitionKey:
+          type: string
+          example: SampleTaskDefinitionKey
+        durationInMillis:
+          type: integer
+          format: int64
+          example: 307407
+        workTimeInMillis:
+          type: integer
+          format: int64
+          example: 509346
+        scopeDefinitionId:
+          type: string
+          example: SampleScopeDefinitionId
+        processInstanceId:
+          type: string
+          example: 68cb0e33-74d7-11ea-a29e-50e08558ee22
+        processDefinitionId:
+          type: string
+          example: SampleDeployment:3:668738b2-74d7-11ea-a29e-50e08558ee22
+        links:
+          $ref: '#/components/schemas/Links'
+    EntityModelWorkflowHistoryVersionInformationResponse:
+      type: object
+      properties:
+        patch:
+          type: string
+          example: "0"
+        name:
+          type: string
+          example: OT2 Workflow-History
+        version:
+          type: string
+          example: 1.0.0
+        build:
+          type: string
+          example: default
+        minor:
+          type: string
+          example: "0"
+        major:
+          type: string
+          example: "1"
+        preRelease:
+          type: string
+          example: default
+        links:
+          $ref: '#/components/schemas/Links'
+    Links:
+      type: object
+      properties:
+        empty:
+          type: boolean
+    WorkflowHistoricActivityInstanceResponse:
+      type: object
+      properties:
+        activityName:
+          type: string
+          example: SampleActivityName
+        taskId:
+          type: string
+          example: 69287079-74d7-11ea-a29e-50e08558ee22
+        subscriptionId:
+          type: string
+          example: 76adec43-d43a-4112-9f49-cd7c64d1d75b
+        tenantId:
+          type: string
+          example: 56adec43-d43a-4112-9f49-cd7c64d1d75b
+        executionId:
+          type: string
+          example: 68cb0e35-74d7-11ea-a29e-50e08558ee22
+        activityId:
+          type: string
+          example: sid-1FA8A099-45BD-44B6-89A1-365EF6E35118
+        activityType:
+          type: string
+          example: userTask
+        endTime:
+          type: string
+          format: date-time
+          example: 2020-04-02T17:20:18.722+05:30
+        assignee:
+          type: string
+          example: John
+        id:
+          type: string
+          example: 68cb0e36-74d7-11ea-a29e-50e08558ee22
+        startTime:
+          type: string
+          format: date-time
+          example: 2020-04-02T17:15:11.315+05:30
+        durationInMillis:
+          type: integer
+          format: int64
+          example: 86400056
+        calledProcessInstanceId:
+          type: string
+          example: 68cb0ty3-74d7-11ea-a29e-50e08558ee22
+        processInstanceId:
+          type: string
+          example: 68cb0e33-74d7-11ea-a29e-50e08558ee22
+        processDefinitionId:
+          type: string
+          example: SampleDeployment:3:668738b2-74d7-11ea-a29e-50e08558ee22
+    WorkflowHistoricProcessInstanceResponse:
+      type: object
+      properties:
+        subscriptionId:
+          type: string
+          example: cda90802-4bcc-4134-9815-95b8ed50b516
+        tenantId:
+          type: string
+          example: 56adec43-d43a-4112-9f49-cd7c64d1d75b
+        endTime:
+          type: string
+          format: date-time
+          example: 2020-04-02T17:20:18.722+05:30
+        variables:
+          type: array
+          items:
+            $ref: '#/components/schemas/WorkflowRuntimeVariableImpl'
+        callbackId:
+          type: string
+          example: SampleCallBackId
+        startUserId:
+          type: string
+          example: SampleUser
+        deleteReason:
+          type: string
+          example: SampleDeleteReason
+        endActivityId:
+          type: string
+          example: endEvent
+        callbackType:
+          type: string
+          example: SampleCallBackType
+        dueDate:
+          type: string
+          format: date-time
+          example: 2021-04-02T17:20:18.722+05:30
+        referenceId:
+          type: string
+          example: SampleReferenceId
+        startActivityId:
+          type: string
+          example: startEvent
+        businessKey:
+          type: string
+          example: SampleBusinessKey
+        referenceType:
+          type: string
+          example: event-to-bpmn-2.0-process
+        name:
+          type: string
+          example: Sample Process
+        id:
+          type: string
+          example: 68cb0e33-74d7-11ea-a29e-50e08558ee22
+        startTime:
+          type: string
+          format: date-time
+          example: 2020-04-02T17:15:11.315+05:30
+        comments:
+          type: array
+          items:
+            $ref: '#/components/schemas/WorkflowProcessCommentResponse'
+        processDefinitionDescription:
+          type: string
+          example: Sample Process Definition Description
+        superProcessInstanceId:
+          type: string
+          example: 53baeda7-6f40-11ea-8b7c-50e08558ee22
+        durationInMillis:
+          type: integer
+          format: int64
+          example: 86400056
+        processDefinitionName:
+          type: string
+          example: Sample Process Definition
+        processDefinitionId:
+          type: string
+          example: SampleDeployment:3:668738b2-74d7-11ea-a29e-50e08558ee22
+    WorkflowHistoricTaskCommentResponse:
+      type: object
+      properties:
+        taskId:
+          type: string
+          example: f89f1185-3391-11ea-b509-eeee0affefe7
+        author:
+          type: string
+          example: user@opentext.com
+        message:
+          type: string
+          example: SampleMessage
+        id:
+          type: string
+          example: e710b009-3397-11ea-b509-eeee0affefe7
+        time:
+          type: string
+          format: date-time
+        processInstanceId:
+          type: string
+          example: f8985abd-3391-11ea-b509-eeee0affefe7
+    WorkflowHistoricTaskIdentityResponse:
+      type: object
+      properties:
+        user:
+          type: string
+          example: testCandidate@test.com
+        type:
+          type: string
+          example: assignee
+        group:
+          type: string
+          example: testgroup
+    WorkflowHistoricTaskInstanceResponse:
+      type: object
+      properties:
+        category:
+          type: string
+          example: SampleCategory
+        subscriptionId:
+          type: string
+          example: c33fd1c5-65ce-11eb-8176-04ed339d7291
+        tenantId:
+          type: string
+          example: 56adec43-d43a-4112-9f49-cd7c64d1d75b
+        executionId:
+          type: string
+          example: 68cb0e35-74d7-11ea-a29e-50e08558ee22
+        endTime:
+          type: string
+          format: date-time
+          example: 2020-04-02T17:20:18.722+05:30
+        variables:
+          type: array
+          items:
+            $ref: '#/components/schemas/WorkflowRuntimeVariableImpl'
+        deleteReason:
+          type: string
+          example: Sample Delete Reason
+        dueDate:
+          type: string
+          format: date-time
+          example: 2020-04-13T17:15:11.315+05:30
+        assignee:
+          type: string
+          example: SampleAssignee
+        formKey:
+          type: string
+          example: SampleFormKey
+        parentTaskId:
+          type: string
+          example: 692870987-74d7-11ea-a29e-50e08558ee22
+        claimTime:
+          type: string
+          format: date-time
+        scopeType:
+          type: string
+          example: SampleScopeType
+        scopeId:
+          type: string
+          example: SampleScopeId
+        assignments:
+          type: array
+          items:
+            $ref: '#/components/schemas/WorkflowHistoricTaskIdentityResponse'
+        name:
+          type: string
+          example: Sample Task
+        priority:
+          type: integer
+          format: int32
+          example: 5
+        id:
+          type: string
+          example: 69287079-74d7-11ea-a29e-50e08558ee22
+        owner:
+          type: string
+          example: SampleOwner
+        description:
+          type: string
+          example: Sample Task Description
+        startTime:
+          type: string
+          format: date-time
+          example: 2020-04-02T17:15:11.315+05:30
+        comments:
+          type: array
+          items:
+            $ref: '#/components/schemas/WorkflowHistoricTaskCommentResponse'
+        taskDefinitionKey:
+          type: string
+          example: SampleTaskDefinitionKey
+        durationInMillis:
+          type: integer
+          format: int64
+          example: 307407
+        workTimeInMillis:
+          type: integer
+          format: int64
+          example: 509346
+        scopeDefinitionId:
+          type: string
+          example: SampleScopeDefinitionId
+        processInstanceId:
+          type: string
+          example: 68cb0e33-74d7-11ea-a29e-50e08558ee22
+        processDefinitionId:
+          type: string
+          example: SampleDeployment:3:668738b2-74d7-11ea-a29e-50e08558ee22
+    WorkflowHistoryVersionInformationResponse:
+      type: object
+      properties:
+        patch:
+          type: string
+          example: "0"
+        name:
+          type: string
+          example: OT2 Workflow-History
+        version:
+          type: string
+          example: 1.0.0
+        build:
+          type: string
+          example: default
+        minor:
+          type: string
+          example: "0"
+        major:
+          type: string
+          example: "1"
+        preRelease:
+          type: string
+          example: default
+    WorkflowProcessCommentResponse:
+      type: object
+      properties:
+        author:
+          type: string
+          example: vamsi
+        message:
+          type: string
+          example: OrderReceived
+        id:
+          type: string
+          example: e710b009-3397-11ea-b509-eeee0affefe7
+        time:
+          type: string
+          format: date-time
+        processInstanceId:
+          type: string
+          example: f8985abd-3391-11ea-b509-eeee0affefe7
+    WorkflowRuntimeVariableImpl:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Name of the variable
+          example: SampleVariable
+        type:
+          type: string
+          description: Type of the variable.
+          example: string
+        value:
+          type: object
+          properties: {}
+          description: Value of the variable.
+          example: SampleValue
+        encryption:
+          type: boolean
+          example: false
+        scope:
+          type: string
+          example: local
+  securitySchemes:
+    oAuth:
+      type: oauth2
+      flows:
+        implicit:
+          authorizationUrl: https://na-1-dev.api.opentext.com/tenant/<tenant_id>/oauth2/token
+          scopes: {}
